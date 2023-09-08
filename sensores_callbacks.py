@@ -59,6 +59,7 @@ def actualizar_opciones(datos):
     prevent_initial_call=True
 )
 
+#esta funcion hay que corregir
 def update_graph(selected_column,datos,fig):
     if selected_column is None:
         return no_update
