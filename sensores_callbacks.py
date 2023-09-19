@@ -29,6 +29,7 @@ def get_data_files_names():
         Input('intervalo-actualizacion','n_intervals'),
 )
 def uptade_names(n_intervals):
+    """Levanta nombre de las bases sensoras."""
     dl,names=get_data_files_names()
     namesS = [str(elemento) for elemento in names]
     op={'dl': dl, 'names': names, 'nombre': namesS}
@@ -44,8 +45,10 @@ def uptade_names(n_intervals):
 @callback(
     Output('data-store','data'),
     Input('dropSensor','value'),
+    Input('intervalo-actualizacion','n_intervals'),
 )
-def update_output(valor):
+def update_output(valor,n_interval):
+    print('actualizando data store')
     # valor ahora es lista=[sensor1.json,sensor2.json]
     if valor is None:
         return no_update
@@ -65,6 +68,7 @@ def update_output(valor):
     Input('data-store','data')
 )
 def actualizar_opciones(datos):
+    """Actualiza las opciones en el dropdown"""
     if datos:
         l0 =[]
         for k,v in datos.items():
@@ -81,17 +85,20 @@ def actualizar_opciones(datos):
 @callback(
     Output('figures-container', 'children' ),
     Input('dropVar','value'),
+    Input('intervalo-actualizacion','n_intervals'),
     State('data-store','data'),
     #State('figures-container', 'children' ),
     prevent_initial_call=True
 )
 # crea graficos si no hay variables
-def create_graph(selected_column,datos):#,fig):
-
+def create_graph(selected_column,n_interval,datos):#,fig):
+    """Crea los graficos con los valores de variables seleccionadas
+    (si existen) en las figuras"""
     figs=[]
+    if selected_column is None :
+        return no_update
     for sel in selected_column:
         fig = go.Figure()
-
         for datos_key,datos_val in datos.items():
             df = pd.DataFrame(datos_val)
             if sel in df.columns:
@@ -104,6 +111,8 @@ def create_graph(selected_column,datos):#,fig):
                 )
                 fig.add_trace(this_line)
                 fig.update_layout(title=f'{yy}')
+        #no existe variable
+        #if yy not in figs:       
         g=dcc.Graph(figure=fig ,id={'type':'graph',
                                   'id':sel})
         figs.append(g)
@@ -112,19 +121,39 @@ def create_graph(selected_column,datos):#,fig):
 
 from dash import MATCH,ALL, callback_context
 
-@callback(Output({'type':'graph','id':MATCH},'figure'),
-          Input('data-store','data'),
-          State({'type':'graph','id':MATCH},'figure'),
-          prevent_initial_callback=True
-)
-#actualiza graficos si ya existen
-def update(data,fig):
-    print("")
-    print("")
-    print("cb context")
-    print(len(callback_context.states_list))
-    print(callback_context.states_list[0]['id']['id'])
-    return no_update#fig
+# @callback(Output({'type':'graph','id':MATCH},'figure'),
+#         Input('data-store','data'),
+#         State({'type':'graph','id':MATCH},'figure'),
+#         prevent_initial_callback=True
+# )
+# #actualiza graficos si ya existen
+# def update(ds,datos,fig):
+#     if ds is None:
+#         return no_update
+#     else:
+#     #print(len(callback_context.states_list))
+#     #print(callback_context.states_list[0]['id']['id'])
+#         selected_column=callback_context.states_list[0]['id']['id'] #variable seleccionada
+#         print("sensor")
+#         print(selected_column)
+        
+
+#     # for sel in selected_column:
+#     #     for datos_key,datos_val in datos.items():
+#     #         df = pd.DataFrame(datos_val)
+#     #         if sel in df.columns:
+#     #             xx= 'tiempo'
+#     #             yy= sel
+#     #             this_line = go.Scatter(
+#     #                     x=df[xx],
+#     #                     y=df[yy],
+#     #                     name=f'{datos_key}'         
+#     #             )
+#     #             fig.add_trace(this_line)
+
+            
+#     return no_update#fig
+#   return
 
 
 # #------------------grafico  -----------------
