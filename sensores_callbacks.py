@@ -48,7 +48,7 @@ def uptade_names(n_intervals):
     Input('intervalo-actualizacion','n_intervals'),
 )
 def update_output(valor,n_interval):
-    print('actualizando data store')
+    #print('actualizando data store')
     # valor ahora es lista=[sensor1.json,sensor2.json]
     if valor is None:
         return no_update
@@ -85,18 +85,20 @@ def actualizar_opciones(datos):
 @callback(
     Output('figures-container', 'children' ),
     Input('dropVar','value'),
-    Input('intervalo-actualizacion','n_intervals'),
-    State('data-store','data'),
+    Input('data-store','data'), # en input porque asi puedo usar sensores para actualizar
     #State('figures-container', 'children' ),
     prevent_initial_call=True
 )
 # crea graficos si no hay variables
-def create_graph(selected_column,n_interval,datos):#,fig):
+def create_graph(selected_column,datos):#,fig):
     """Crea los graficos con los valores de variables seleccionadas
     (si existen) en las figuras"""
     figs=[]
+    if datos=={}:
+        return None
+    
     if selected_column is None :
-        return no_update
+        return no_update 
     for sel in selected_column:
         fig = go.Figure()
         for datos_key,datos_val in datos.items():
@@ -109,115 +111,15 @@ def create_graph(selected_column,n_interval,datos):#,fig):
                         y=df[yy],
                         name=f'{datos_key}'         
                 )
-                fig.add_trace(this_line)
-                fig.update_layout(title=f'{yy}')
-        #no existe variable
-        #if yy not in figs:       
+                if yy is not None:
+                    fig.add_trace(this_line)
+                    fig.update_layout(title=f'{yy}',title_font=dict(size=24, color='white'),  # Estilo del título: tamaño y color
+                    title_x=0.5)
+                    fig.update_layout(template='plotly_dark')
+
         g=dcc.Graph(figure=fig ,id={'type':'graph',
-                                  'id':sel})
+                                  'id':sel
+                                })
         figs.append(g)
+        #dg#
     return figs
-
-
-from dash import MATCH,ALL, callback_context
-
-# @callback(Output({'type':'graph','id':MATCH},'figure'),
-#         Input('data-store','data'),
-#         State({'type':'graph','id':MATCH},'figure'),
-#         prevent_initial_callback=True
-# )
-# #actualiza graficos si ya existen
-# def update(ds,datos,fig):
-#     if ds is None:
-#         return no_update
-#     else:
-#     #print(len(callback_context.states_list))
-#     #print(callback_context.states_list[0]['id']['id'])
-#         selected_column=callback_context.states_list[0]['id']['id'] #variable seleccionada
-#         print("sensor")
-#         print(selected_column)
-        
-
-#     # for sel in selected_column:
-#     #     for datos_key,datos_val in datos.items():
-#     #         df = pd.DataFrame(datos_val)
-#     #         if sel in df.columns:
-#     #             xx= 'tiempo'
-#     #             yy= sel
-#     #             this_line = go.Scatter(
-#     #                     x=df[xx],
-#     #                     y=df[yy],
-#     #                     name=f'{datos_key}'         
-#     #             )
-#     #             fig.add_trace(this_line)
-
-            
-#     return no_update#fig
-#   return
-
-
-# #------------------grafico  -----------------
-# @callback(
-#     Output('figures-container', 'children' ),
-#     Input('dropVar','value'),
-#     Input('data-store','data'),
-#     State('figures-container', 'children' ),
-#     prevent_initial_call=True
-# )
-
-# #esta funcion hay que corregir
-# def update_graph(selected_column,datos,fig):
-#     figuras = {}
-#     this_line= {}
-#     lines={}
-
-#     if selected_column is None:
-#         return no_update
-#     if fig is None:
-#         fig = go.Figure()
-#     for datos_key,datos_val in datos.items():
-#         df = pd.DataFrame(datos_val)
-#         for col_sel in selected_column:
-#             if col_sel in df.columns:
-#                 xx= 'tiempo'
-#                 yy= col_sel
-
-#                      #no existe variable
-#                 if yy not in figuras:
-
-#                     fig=go.Figure()
-
-#                     this_line[yy] = go.Scatter(
-#                         x=df[xx],
-#                         y=df[yy],
-#                         name=f'{datos_key}'         
-#                     )
-              
-#                     fig=go.Figure()
-#                     fig.add_trace(this_line[yy])
-#                     fig.update_layout(title=f'{yy}')
-#                     lines[datos_key]=this_line[yy]
-#                     figuras[yy]=(dcc.Graph(figure=fig))
-#                     #
-
-
-#                 else:    #ya existe variable
-#                     fig=go.Figure()
-#                     for item in lines:
-#                         linea=lines[item]
-#                         fig.add_trace(linea)
-
-#                     this_line[yy] = go.Scatter(x=df[xx],
-#                             y=df[yy],
-#                             name=f'{yy} - {datos_key}' 
-#                     )   
-
-#                     fig.add_trace(this_line[yy])
-#                     figuras[yy] =(dcc.Graph(figure=fig))  
-#                     fig.update_layout(title=f'{yy}')
-   
-
-#     return  [ figu[1]    for figu in list(figuras.items())  ] # dict to list
-
-
-
