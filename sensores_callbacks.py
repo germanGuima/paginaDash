@@ -1,3 +1,6 @@
+""" Este archivo tiene los callbacs de dash, adicionalmente tiene la 
+lógica de lectura y filtrado de la base de datos de mongo. 
+Optimamente hablando, la parte de mongo deberia estar aparte, meh"""
 
 from dash import Output, Input, State, no_update,callback
 import pandas as pd
@@ -9,19 +12,53 @@ from dash import Patch
 #from gdash2 import app
 from glob import glob
 
+#TODO: agregar base de mongo y tabla
+import pymongo
+
+conn = "mongodb://localhost:27017"
+mongo_client = pymongo.MongoClient(conn)
+
+db = mongo_client.sensor#sensorsDB#classDB
+tabla = db.sensor
+tabla.find()
+
+
 def openJsonAsDf(Jdata):
     with open(str(Jdata),'r') as json_file:
      Jdata3 = json.load(json_file)
+    Jdata3.pop('deviceId')
+    for k,v in Jdata3.items():
+        print(f"{k}: {len(v)}")
     return pd.DataFrame(Jdata3)
 
+from BaseDatos import (
+                    get_dic_from_selected_val,
+                    get_data_files_names
+                    )
 
-def get_data_files_names():
+# def parse_dic_from_elems(lista_elems):
+#     df = pd.DataFrame(lista_elems)
+#     df.drop('_id',axis=1, inplace=True)
+#     df.drop('deviceId',axis=1,inplace=True)
+#     return df.to_dict(orient='list')
+# def get_data_files_names():
+#     dataList = glob('data/*.json')
+#     names = [d.split('/')[-1].split('.')[0]
+#                     for d in dataList]
+#     return dataList,names
+# def get_data_files_names(): #tiene que leer la db de mongo y 
+#     #obtener los nombres distintos
+#     #o sea, hacer un query de todos los device_id
 
-    dataList = glob('data/*.json')
-    names = [d.split('/')[-1].split('.')[0]
-                    for d in dataList]
-    return dataList,names
+#     #TODO: tengo que tener conectada la db de mongo y definida la tabla
 
+#     todos_nombres = [val['deviceId'] for val in tabla.find({},{'deviceId':1,'_id':0})]
+#     nombres_unicos = list(set(todos_nombres))
+#     return nombres_unicos
+#     # dataList = glob('data/*.json')
+#     # names = [d.split('/')[-1].split('.')[0]
+#     #                 for d in dataList]
+#     # return dataList,names
 
 #-------------------- levantar datos-----------------------
 @callback(  
@@ -30,11 +67,14 @@ def get_data_files_names():
 )
 def uptade_names(n_intervals):
     """Levanta nombre de las bases sensoras."""
-    dl,names=get_data_files_names()
-    namesS = [str(elemento) for elemento in names]
-    op={'dl': dl, 'names': names, 'nombre': namesS}
+    #TODO: modificar porque ahora solo devuelve names \check
+    names = get_data_files_names()
+    opciones = [ {'label': n, 'value':n} for n in names]
+    # dl,names=get_data_files_names()
+    # namesS = [str(elemento) for elemento in names]
+    # op={'dl': dl, 'names': names, 'nombre': namesS}
 
-    opciones=[ {'label': namesS, 'value': dl} for namesS, dl in zip(op['nombre'], op['dl']) ]  
+    # opciones=[ {'label': namesS, 'value': dl} for namesS, dl in zip(op['nombre'], op['dl']) ]  
     #print(opciones)    
     return opciones
 
@@ -54,13 +94,20 @@ def update_output(valor,n_interval):
         return no_update
     dic={}#diccionario
     #print(valor)
-    for elemento in valor:
-        #print(elemento)
-        df =openJsonAsDf(elemento)
-        name = elemento.split('/')[-1].split('.')[0]
-        dic[name]=df.to_dict()
-    return dic# retorno diccionario
+
+    #TODO: obtener de la base de datos todos los elementos con deviceId==valor
+
+    dic = get_dic_from_selected_val(valor)
     
+    return dic
+    # for elemento in valor:
+    #     #print(elemento)
+    #     df =openJsonAsDf(elemento)
+    #     name = elemento.split('/')[-1].split('.')[0]
+    #     dic[name]=df.to_dict()
+    # return dic# retorno diccionario
+
+
 
     #--------------------Elegir variable-----------------------
 @callback(
@@ -74,8 +121,8 @@ def actualizar_opciones(datos):
         for k,v in datos.items():
             l0 = l0+ list(v.keys())
         l0 = set(l0)
-        #print(l0)
-        l0.remove('tiempo')
+        print(l0)
+        # l0.remove('tiempo')
         opciones=[{'label': col , 'value':col} for col in l0]
     else:
         opciones=[]

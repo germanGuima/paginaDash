@@ -23,11 +23,11 @@ app.layout = html.Div(
         interval=10*1000,  # Intervalo en milisegundos (en este caso, cada segundo)
         n_intervals=0  # Valor inicial de n_intervals
     ),
-    dcc.Interval(
-        id='intervalo-graf',
-        interval=500,  # Intervalo en milisegundos (en este caso, cada segundo)
-        n_intervals=0  # Valor inicial de n_intervals
-    ),
+    # dcc.Interval(
+    #     id='intervalo-graf',
+    #     interval=500,  # Intervalo en milisegundos (en este caso, cada segundo)
+    #     n_intervals=0  # Valor inicial de n_intervals
+    # ), #lo comente porque creo que no hace nada
     
     dcc.Store(id='storeJ'),
      # ---------------------Imagen-------------------------------
