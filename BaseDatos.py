@@ -37,7 +37,7 @@ def insertarBase(mens):
     if(db.sensor.find() ): #si no existe en la base de datos
         return db.sensor.insert_one(mens) # chekear inser one como funciona
     else:  # si ya existe en la base de datos
-        return db.
+        return db
 def parse_dic_from_elems(lista_elems):
     """Nos devuelve un diccionario de listas de los datos 
     de una lista de elementos"""

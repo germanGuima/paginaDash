@@ -11,10 +11,7 @@ app = dash.Dash(__name__ , external_stylesheets=[dbc.themes.SLATE])
 #SOLAR
 #Veo los .json
 from glob import glob
-
-import sensores_callbacks
-
-
+import sensoresCallbacks
 
 app.layout = html.Div(
 [
