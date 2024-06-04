@@ -2,36 +2,39 @@
 guardar en la base de mongo"""
 #########################################################################
 # #-----------------------Base-de-datos--------------------------------------------#
-# import pymongo
-# import pprint
-# import datetime as dt
-# from pymongo import MongoClient
-# # Establish connection
-# import time
-# import pandas as pd
+import pymongo
+import pprint
+import datetime as dt
+from pymongo import MongoClient
+# Establish connection
+import time
+import pandas as pd
 
-# conn = "mongodb://localhost:27017"
-# mongo_client = pymongo.MongoClient(conn)
+conn = "mongodb://localhost:27017"
+#conn="mongodb+srv://ger:iaci2023@cluster0.vxyuxqk.mongodb.net/"
 
-# # Create a database
+mongo_client = pymongo.MongoClient(conn)
 
-# db = mongo_client.sensor#sensorsDB#classDB
-# tabla = db.sensor
-# tabla.find()
+# Create a database
 
-# #esto es lo que hay que hacer para recuperar los nombres unicos
-# todos_nombres = [val['deviceId'] for val in tabla.find({},{'deviceId':1,'_id':0})]
-# nombres_unicos = list(set(todos_nombres))
+db = mongo_client.sensor#sensorsDB#classDB
+tabla = db.sensor
+tabla.find()
 
-# todosLosDatosDelPrimerNombreUnico = list(tabla.find({'deviceId':nombres_unicos[0]}))
+#esto es lo que hay que hacer para recuperar los nombres unicos
+todos_nombres = [val['deviceId'] for val in tabla.find({},{'deviceId':1,'_id':0})]
+nombres_unicos = list(set(todos_nombres))
+
+todosLosDatosDelPrimerNombreUnico = list(tabla.find({'deviceId':nombres_unicos[0]}))
 
 
-# from pymongo import MongoClient
+from pymongo import MongoClient
 
 #########################################################################
 #----------------------Mqtt------------------------------------------------------------------
   
 import BaseDatos
+from BaseDatos import  insertarBase
 import json
 import time
 
@@ -66,8 +69,10 @@ def on_message(mqtt_client, userdata, message):
     Jmsg['tiempo'] = time.time()
     
     # db.sensor.insert_one(Jmsg)
-    insertarBase(Jmsg) # Esto me esta creando una base de datos x cada mensaje
+    val =insertarBase(Jmsg) # Esto me esta creando una base de datos x cada mensaje
                         #deberia crear si no existe *arreglar en basedatos
+    
+    print(f"{val.inserted_id=}")
     print('valor guardado---------------')
 
 mqtt_client.on_message = on_message #Mensaje Recibido -Guardar en base de datos

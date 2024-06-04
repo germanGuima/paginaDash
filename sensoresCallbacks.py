@@ -15,7 +15,9 @@ from glob import glob
 #TODO: agregar base de mongo y tabla
 import pymongo
 
-conn = "mongodb://localhost:27017"
+#conn = "mongodb://localhost:27017"
+conn="mongodb+srv://ger:iaci2023@cluster0.vxyuxqk.mongodb.net/"
+
 mongo_client = pymongo.MongoClient(conn)
 
 db = mongo_client.sensor#sensorsDB#classDB
@@ -68,6 +70,7 @@ from BaseDatos import (
 def uptade_names(n_intervals):
     """Levanta nombre de las bases sensoras."""
     #TODO: modificar porque ahora solo devuelve names \check
+    #print("funcion update_names")
     names = get_data_files_names()
     opciones = [ {'label': n, 'value':n} for n in names]
     # dl,names=get_data_files_names()

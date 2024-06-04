@@ -12,7 +12,14 @@ from pymongo import MongoClient
 import time
 import pandas as pd
 
-conn = "mongodb://localhost:27017"
+#aca el primero inserta en base local
+#conn = "mongodb://localhost:27017"
+#aca inserto en remoto
+#?donde tengo q insertar?
+conn="mongodb+srv://ger:iaci2023@cluster0.vxyuxqk.mongodb.net/"
+
+
+
 mongo_client = pymongo.MongoClient(conn)
 
 # Create a database
@@ -35,9 +42,9 @@ import json
                         #deberia crear si no existe *arreglar en basedatos
 def insertarBase(mens):
     if(db.sensor.find() ): #si no existe en la base de datos
-        return db.sensor.insert_one(mens) # chekear inser one como funciona
+        return db.sensor.insert_one(mens) # chekear insert one como funciona
     else:  # si ya existe en la base de datos
-        return db
+        return False
 def parse_dic_from_elems(lista_elems):
     """Nos devuelve un diccionario de listas de los datos 
     de una lista de elementos"""
@@ -59,7 +66,10 @@ def get_data_files_names():
     #TODO: tengo que tener conectada la db de mongo y definida la tabla
 
     todos_nombres = [val['deviceId'] for val in tabla.find({},{'deviceId':1,'_id':0})]
+    #todos_nombres = [val['deviceId'] for val in tabla.find({},{'deviceId':"NodeMCU",'_id':0})]
+    
     nombres_unicos = list(set(todos_nombres))
+    #print(nombres_unicos)
     return nombres_unicos
     
     # dataList = glob('data/*.json')
